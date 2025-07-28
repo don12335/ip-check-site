@@ -1,84 +1,111 @@
 <!DOCTYPE html>
 <html lang="zh-Hant">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>建議使用 VPN 保護上網安全</title>
-  <script async src="https://www.googletagmanager.com/gtag/js?id=G-XXXXXXX"></script>
-  <script>
-    window.dataLayer = window.dataLayer || [];
-    function gtag(){ dataLayer.push(arguments); }
-    gtag('js', new Date());
-    gtag('config', 'G-XXXXXXX');
-  </script>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>你的網路資訊</title>
   <style>
     body {
-      font-family: sans-serif;
-      background: #f5f5f5;
       margin: 0;
-      padding: 2rem;
+      font-family: "Segoe UI", sans-serif;
+      background: #0f172a;
+      color: #f8fafc;
       display: flex;
       flex-direction: column;
       align-items: center;
-      text-align: center;
+      justify-content: center;
+      min-height: 100vh;
+      padding: 20px;
     }
+
     .card {
-      background: white;
-      padding: 2rem;
-      border-radius: 12px;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-      max-width: 500px;
+      background: #1e293b;
+      padding: 30px;
+      border-radius: 16px;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+      max-width: 400px;
       width: 100%;
     }
-    .info {
-      margin: 1rem 0;
+
+    h1 {
+      font-size: 1.8rem;
+      margin-bottom: 20px;
+      text-align: center;
+      color: #38bdf8;
     }
-    .btn {
-      display: inline-block;
-      margin-top: 1rem;
-      padding: 0.75rem 1.5rem;
-      background: #0c74d4;
-      color: white;
-      border: none;
-      border-radius: 6px;
+
+    .info {
+      margin: 10px 0;
+      font-size: 1rem;
+    }
+
+    .vpn-note {
+      background: #334155;
+      padding: 10px;
+      border-radius: 10px;
+      margin-top: 20px;
+      font-size: 0.95rem;
+    }
+
+    .vpn-link {
+      margin-top: 10px;
+      display: block;
+      text-align: center;
+      color: #22d3ee;
       text-decoration: none;
       font-weight: bold;
+    }
+
+    .vpn-link:hover {
+      color: #67e8f9;
     }
   </style>
 </head>
 <body>
   <div class="card">
-    <h1>🔒 保護你的上網安全</h1>
-    <p class="info" id="ip">正在載入您的 IP 資訊...</p>
-    <p class="info" id="device">正在偵測裝置資訊...</p>
-    <p class="info" id="timezone">正在偵測時區...</p>
-    <p>我們建議使用 VPN 保護個人資料與隱私。</p>
-    <a class="btn" href="https://surfshark.club/friend/y574AMmc" target="_blank">前往 Surfshark VPN</a>
+    <h1>你的網路資訊</h1>
+    <div class="info" id="ip">IP 位址：讀取中...</div>
+    <div class="info" id="location">地區：讀取中...</div>
+    <div class="info" id="device">裝置類型：讀取中...</div>
+    <div class="info" id="timezone">時區：讀取中...</div>
+
+    <div class="vpn-note">
+      你正在暴露真實 IP 和設備資訊，為了安全建議使用 VPN。
+      <a class="vpn-link" href="https://surfshark.club/friend/y574AMmc" target="_blank">點我前往 Surfshark VPN</a>
+    </div>
   </div>
 
   <script>
-    // IP 顯示
-    fetch('https://api.ipify.org?format=json')
+    // 設定 API Token
+    const token = "ef1cbe346c7c0f";
+
+    // 使用 ipinfo 查詢 IP 和地區
+    fetch(`https://ipinfo.io/json?token=${token}`)
       .then(res => res.json())
       .then(data => {
-        document.getElementById('ip').innerText = '🌐 你的 IP: ' + data.ip;
+        document.getElementById("ip").textContent = "IP 位址：" + data.ip;
+        document.getElementById("location").textContent = `地區：${data.city || ''}, ${data.region || ''}, ${data.country || ''}`;
       });
 
     // 裝置資訊
     const ua = navigator.userAgent;
-    document.getElementById('device').innerText = '📱 裝置資訊: ' + ua;
+    let deviceType = "未知裝置";
+
+    if (/mobile/i.test(ua)) {
+      deviceType = "手機";
+    } else if (/tablet/i.test(ua)) {
+      deviceType = "平板";
+    } else {
+      deviceType = "電腦";
+    }
+
+    document.getElementById("device").textContent = "裝置類型：" + deviceType;
 
     // 時區
-    const tz = Intl.DateTimeFormat().resolvedOptions().timeZone;
-    document.getElementById('timezone').innerText = '🕒 時區: ' + tz;
-
-    // 自動語言切換
-    const lang = navigator.language || navigator.userLanguage;
-    if (lang.startsWith('en')) {
-      document.querySelector('h1').innerText = '🔒 Stay Safe Online';
-      document.querySelector('.btn').innerText = 'Go to Surfshark VPN';
-      document.querySelector('p:last-of-type').innerText = 'We recommend using a VPN to protect your privacy.';
-    }
+    const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+    document.getElementById("timezone").textContent = "時區：" + timezone;
   </script>
 </body>
+</html>
+
 </html>

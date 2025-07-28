@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>你的 IP 資訊</title>
+  <style>
+    body {
+      font-family: "Segoe UI", sans-serif;
+      background-color: #0f172a;
+      color: #e2e8f0;
+      padding: 2em;
+      text-align: center;
+    }
+    .card {
+      background-color: #1e293b;
+      padding: 2em;
+      border-radius: 10px;
+      display: inline-block;
+      margin-top: 2em;
+    }
+    a {
+      display: inline-block;
+      margin-top: 1.5em;
+      background-color: #0ea5e9;
+      color: white;
+      text-decoration: none;
+      padding: 0.7em 1.5em;
+      border-radius: 8px;
+      font-weight: bold;
+    }
+    a:hover {
+      background-color: #0284c7;
+    }
+  </style>
+</head>
+<body>
+  <h1>🔍 你的連線資訊</h1>
+  <div class="card">
+    <p id="ip">取得中...</p>
+    <p id="location"></p>
+    <p style="color: #f87171; font-weight: bold;">
+      ⚠️ 為了你的隱私安全，建議你使用 VPN 保護自己上網！
+    </p>
+    <a href="https://surfshark.com/" target="_blank">前往 Surfshark VPN 官網</a>
+  </div>
+
+  <script>
+    fetch("https://ipinfo.io/json?token=ef1cbe346c7c0f")
+      .then((res) => res.json())
+      .then((data) => {
+        document.getElementById("ip").textContent = "你的 IP：" + data.ip;
+        document.getElementById("location").textContent = "你的位置：" + data.city + ", " + data.country;
+      })
+      .catch((err) => {
+        document.getElementById("ip").textContent = "無法取得 IP 資訊";
+      });
+  </script>
+</body>
+</html>

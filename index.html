@@ -1,70 +1,86 @@
 <!DOCTYPE html>
-<html lang="zh-Hant">
+<html lang="zh-TW">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>你的 IP 資訊</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>您的連線資訊</title>
   <style>
     body {
       font-family: "Segoe UI", sans-serif;
-      background-color: #0f172a;
-      color: #e2e8f0;
-      padding: 2em;
-      text-align: center;
+      background: #f5f5f5;
+      color: #222;
+      padding: 30px;
+      line-height: 1.6;
     }
-    .card {
-      background-color: #1e293b;
-      padding: 2em;
+    .box {
+      background: white;
       border-radius: 10px;
-      display: inline-block;
-      margin-top: 2em;
+      padding: 20px;
+      max-width: 500px;
+      margin: auto;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
     }
-    a {
+    .label {
+      font-weight: bold;
+      margin-top: 10px;
+    }
+    .vpn-box {
+      margin-top: 30px;
+      padding: 15px;
+      background: #e0f7fa;
+      border-left: 5px solid #00796b;
+      border-radius: 5px;
+    }
+    .vpn-button {
       display: inline-block;
-      margin-top: 1.5em;
-      background-color: #0ea5e9;
+      margin-top: 10px;
+      padding: 10px 20px;
+      background: #00c4b3;
       color: white;
       text-decoration: none;
-      padding: 0.7em 1.5em;
-      border-radius: 8px;
-      font-weight: bold;
+      border-radius: 5px;
     }
-    a:hover {
-      background-color: #0284c7;
+    .vpn-button:hover {
+      background: #00897b;
     }
   </style>
 </head>
 <body>
-  <h1>🔍 你的連線資訊</h1>
-  <div class="card">
-    <p id="ip">取得中...</p>
-    <p id="location"></p>
-    <p id="device-type">裝置類型：取得中...</p>
-    <p id="timezone">時區：取得中...</p>
-    <p style="color: #f87171; font-weight: bold;">
-      ⚠️ 為了你的隱私安全，建議你使用 VPN 保護自己上網！
-    </p>
-    <a href="https://surfshark.club/friend/y574AMmc" target="_blank">前往 Surfshark VPN 官網【優惠連結】</a>
+  <div class="box">
+    <h2>您的連線資訊</h2>
+    <div><span class="label">IP 位址：</span><span id="ip">讀取中...</span></div>
+    <div><span class="label">地區：</span><span id="location">讀取中...</span></div>
+    <div><span class="label">時區：</span><span id="timezone">讀取中...</span></div>
+    <div><span class="label">裝置類型：</span><span id="device">讀取中...</span></div>
+
+    <div class="vpn-box">
+      <p>🔒 為了保護您的隱私，建議您使用 VPN 工具</p>
+      <a class="vpn-button" href="https://surfshark.club/friend/y574AMmc" target="_blank">前往 Surfshark VPN</a>
+    </div>
   </div>
 
   <script>
-    fetch("https://ipinfo.io/json?token=ef1cbe346c7c0f")
-      .then((res) => res.json())
-      .then((data) => {
-        document.getElementById("ip").textContent = "你的 IP：" + data.ip;
-        document.getElementById("location").textContent = "你的位置：" + data.city + ", " + data.country;
-        
-        // 偵測裝置類型
-        const deviceType = /mobile/i.test(navigator.userAgent) ? "手機" :
-                           /tablet/i.test(navigator.userAgent) ? "平板" : "桌機";
-        document.getElementById("device-type").textContent = "裝置類型：" + deviceType;
+    // 判斷裝置類型
+    function getDeviceType() {
+      const ua = navigator.userAgent;
+      if (/Mobile|Android|iPhone|iPad|iPod/.test(ua)) return "手機或平板";
+      return "電腦";
+    }
 
-        // 顯示時區
-        const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
-        document.getElementById("timezone").textContent = "時區：" + timezone;
+    document.getElementById("device").innerText = getDeviceType();
+
+    // IP & 時區
+    fetch("https://ipinfo.io/json?token=ef1cbe346c7c0f")
+      .then(res => res.json())
+      .then(data => {
+        document.getElementById("ip").innerText = data.ip;
+        document.getElementById("location").innerText = `${data.city}, ${data.region}, ${data.country}`;
+        document.getElementById("timezone").innerText = data.timezone;
       })
-      .catch((err) => {
-        document.getElementById("ip").textContent = "無法取得 IP 資訊";
+      .catch(() => {
+        document.getElementById("ip").innerText = "取得失敗";
+        document.getElementById("location").innerText = "取得失敗";
+        document.getElementById("timezone").innerText = "取得失敗";
       });
   </script>
 </body>

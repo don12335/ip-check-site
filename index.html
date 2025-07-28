@@ -39,10 +39,12 @@
   <div class="card">
     <p id="ip">取得中...</p>
     <p id="location"></p>
+    <p id="device-type">裝置類型：取得中...</p>
+    <p id="timezone">時區：取得中...</p>
     <p style="color: #f87171; font-weight: bold;">
       ⚠️ 為了你的隱私安全，建議你使用 VPN 保護自己上網！
     </p>
-    <a href="https://surfshark.com/" target="_blank">前往 Surfshark VPN 官網</a>
+    <a href="https://surfshark.club/friend/y574AMmc" target="_blank">前往 Surfshark VPN 官網【優惠連結】</a>
   </div>
 
   <script>
@@ -51,6 +53,15 @@
       .then((data) => {
         document.getElementById("ip").textContent = "你的 IP：" + data.ip;
         document.getElementById("location").textContent = "你的位置：" + data.city + ", " + data.country;
+        
+        // 偵測裝置類型
+        const deviceType = /mobile/i.test(navigator.userAgent) ? "手機" :
+                           /tablet/i.test(navigator.userAgent) ? "平板" : "桌機";
+        document.getElementById("device-type").textContent = "裝置類型：" + deviceType;
+
+        // 顯示時區
+        const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+        document.getElementById("timezone").textContent = "時區：" + timezone;
       })
       .catch((err) => {
         document.getElementById("ip").textContent = "無法取得 IP 資訊";

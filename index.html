@@ -1,87 +1,109 @@
 <!DOCTYPE html>
-<html lang="zh-TW">
+<html lang="zh-Hant">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>您的連線資訊</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>你的網路資訊</title>
   <style>
     body {
+      margin: 0;
       font-family: "Segoe UI", sans-serif;
-      background: #f5f5f5;
-      color: #222;
-      padding: 30px;
-      line-height: 1.6;
-    }
-    .box {
-      background: white;
-      border-radius: 10px;
+      background: #0f172a;
+      color: #f8fafc;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
       padding: 20px;
-      max-width: 500px;
-      margin: auto;
-      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
     }
-    .label {
-      font-weight: bold;
+
+    .card {
+      background: #1e293b;
+      padding: 30px;
+      border-radius: 16px;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+      max-width: 400px;
+      width: 100%;
+    }
+
+    h1 {
+      font-size: 1.8rem;
+      margin-bottom: 20px;
+      text-align: center;
+      color: #38bdf8;
+    }
+
+    .info {
+      margin: 10px 0;
+      font-size: 1rem;
+    }
+
+    .vpn-note {
+      background: #334155;
+      padding: 10px;
+      border-radius: 10px;
+      margin-top: 20px;
+      font-size: 0.95rem;
+    }
+
+    .vpn-link {
       margin-top: 10px;
-    }
-    .vpn-box {
-      margin-top: 30px;
-      padding: 15px;
-      background: #e0f7fa;
-      border-left: 5px solid #00796b;
-      border-radius: 5px;
-    }
-    .vpn-button {
-      display: inline-block;
-      margin-top: 10px;
-      padding: 10px 20px;
-      background: #00c4b3;
-      color: white;
+      display: block;
+      text-align: center;
+      color: #22d3ee;
       text-decoration: none;
-      border-radius: 5px;
+      font-weight: bold;
     }
-    .vpn-button:hover {
-      background: #00897b;
+
+    .vpn-link:hover {
+      color: #67e8f9;
     }
   </style>
 </head>
 <body>
-  <div class="box">
-    <h2>您的連線資訊</h2>
-    <div><span class="label">IP 位址：</span><span id="ip">讀取中...</span></div>
-    <div><span class="label">地區：</span><span id="location">讀取中...</span></div>
-    <div><span class="label">時區：</span><span id="timezone">讀取中...</span></div>
-    <div><span class="label">裝置類型：</span><span id="device">讀取中...</span></div>
+  <div class="card">
+    <h1>你的網路資訊</h1>
+    <div class="info" id="ip">IP 位址：讀取中...</div>
+    <div class="info" id="location">地區：讀取中...</div>
+    <div class="info" id="device">裝置類型：讀取中...</div>
+    <div class="info" id="timezone">時區：讀取中...</div>
 
-    <div class="vpn-box">
-      <p>🔒 為了保護您的隱私，建議您使用 VPN 工具</p>
-      <a class="vpn-button" href="https://surfshark.club/friend/y574AMmc" target="_blank">前往 Surfshark VPN</a>
+    <div class="vpn-note">
+      你正在暴露真實 IP 和設備資訊，為了安全建議使用 VPN。
+      <a class="vpn-link" href="https://surfshark.club/friend/y574AMmc" target="_blank">點我前往 Surfshark VPN</a>
     </div>
   </div>
 
   <script>
-    // 判斷裝置類型
-    function getDeviceType() {
-      const ua = navigator.userAgent;
-      if (/Mobile|Android|iPhone|iPad|iPod/.test(ua)) return "手機或平板";
-      return "電腦";
-    }
+    // 設定 API Token
+    const token = "ef1cbe346c7c0f";
 
-    document.getElementById("device").innerText = getDeviceType();
-
-    // IP & 時區
-    fetch("https://ipinfo.io/json?token=ef1cbe346c7c0f")
+    // 使用 ipinfo 查詢 IP 和地區
+    fetch(`https://ipinfo.io/json?token=${token}`)
       .then(res => res.json())
       .then(data => {
-        document.getElementById("ip").innerText = data.ip;
-        document.getElementById("location").innerText = `${data.city}, ${data.region}, ${data.country}`;
-        document.getElementById("timezone").innerText = data.timezone;
-      })
-      .catch(() => {
-        document.getElementById("ip").innerText = "取得失敗";
-        document.getElementById("location").innerText = "取得失敗";
-        document.getElementById("timezone").innerText = "取得失敗";
+        document.getElementById("ip").textContent = "IP 位址：" + data.ip;
+        document.getElementById("location").textContent = `地區：${data.city || ''}, ${data.region || ''}, ${data.country || ''}`;
       });
+
+    // 裝置資訊
+    const ua = navigator.userAgent;
+    let deviceType = "未知裝置";
+
+    if (/mobile/i.test(ua)) {
+      deviceType = "手機";
+    } else if (/tablet/i.test(ua)) {
+      deviceType = "平板";
+    } else {
+      deviceType = "電腦";
+    }
+
+    document.getElementById("device").textContent = "裝置類型：" + deviceType;
+
+    // 時區
+    const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+    document.getElementById("timezone").textContent = "時區：" + timezone;
   </script>
 </body>
 </html>

@@ -1,129 +1,126 @@
 <!DOCTYPE html>
-<html lang="zh-Hant">
+<html lang="zh">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>你的網路資訊</title>
+  <title>匿名訪客偵測頁</title>
   <style>
     body {
-      margin: 0;
-      font-family: "Segoe UI", sans-serif;
-      background: #0f172a;
-      color: #f8fafc;
+      font-family: sans-serif;
+      background-color: #111;
+      color: #eee;
+      padding: 2rem;
+    }
+    .card {
+      background: #222;
+      border-radius: 1rem;
+      padding: 1.5rem;
+      box-shadow: 0 0 1rem #000;
+      max-width: 500px;
+      margin: auto;
+    }
+    button {
+      margin-top: 1rem;
+      padding: 0.5rem 1rem;
+      border: none;
+      border-radius: 0.5rem;
+      background: #09f;
+      color: white;
+      cursor: pointer;
+    }
+    #langSwitcher {
+      margin-top: 1rem;
+    }
+    .modal {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      background: rgba(0,0,0,0.8);
       display: flex;
-      flex-direction: column;
       align-items: center;
       justify-content: center;
-      min-height: 100vh;
-      padding: 20px;
     }
-
-    .card {
-      background: #1e293b;
-      padding: 30px;
-      border-radius: 16px;
-      box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+    .modal-content {
+      background: #333;
+      padding: 2rem;
+      border-radius: 1rem;
       max-width: 400px;
-      width: 100%;
-    }
-
-    h1 {
-      font-size: 1.8rem;
-      margin-bottom: 20px;
       text-align: center;
-      color: #38bdf8;
-    }
-
-    .info {
-      margin: 10px 0;
-      font-size: 1rem;
-    }
-
-    .vpn-note {
-      background: #334155;
-      padding: 10px;
-      border-radius: 10px;
-      margin-top: 20px;
-      font-size: 0.95rem;
-      text-align: center;
-    }
-
-    .vpn-yes {
-      color: #22c55e;
-      font-weight: bold;
-    }
-
-    .vpn-no {
-      color: #f97316;
-      font-weight: bold;
-    }
-
-    .vpn-link {
-      margin-top: 10px;
-      display: block;
-      text-align: center;
-      color: #22d3ee;
-      text-decoration: none;
-      font-weight: bold;
-    }
-
-    .vpn-link:hover {
-      color: #67e8f9;
     }
   </style>
 </head>
 <body>
   <div class="card">
-    <h1>你的網路資訊</h1>
-    <div class="info" id="ip">IP 位址：讀取中...</div>
-    <div class="info" id="location">地區：讀取中...</div>
-    <div class="info" id="device">裝置類型：讀取中...</div>
-    <div class="info" id="timezone">時區：讀取中...</div>
-
-    <div class="vpn-note" id="vpnStatus">
-      偵測 VPN 狀態中...
+    <h2 id="title">🔍 訪客資訊</h2>
+    <p id="ip">IP 位址：偵測中...</p>
+    <p id="location">位置：-</p>
+    <p id="timezone">時區：-</p>
+    <p id="device">裝置：-</p>
+    <hr />
+    <p id="vpn">🛡️ 建議使用 VPN 保護你的上網隱私</p>
+    <a href="https://surfshark.com" target="_blank">👉 使用 Surfshark VPN</a>
+    <div id="langSwitcher">
+      <button onclick="setLang('zh')">中文</button>
+      <button onclick="setLang('en')">English</button>
     </div>
+  </div>
 
-    <a class="vpn-link" href="https://surfshark.club/friend/y574AMmc" target="_blank">點我前往 Surfshark VPN</a>
+  <div class="modal" id="privacyModal">
+    <div class="modal-content">
+      <p id="modalText">本網站會讀取部分裝置與網路資訊，是否同意？</p>
+      <button onclick="acceptPrivacy()">同意</button>
+    </div>
   </div>
 
   <script>
-    const token = "ef1cbe346c7c0f";
+    const LANG = {
+      zh: {
+        title: "🔍 訪客資訊",
+        vpn: "🛡️ 建議使用 VPN 保護你的上網隱私",
+        modal: "本網站會讀取部分裝置與網路資訊，是否同意？"
+      },
+      en: {
+        title: "🔍 Visitor Info",
+        vpn: "🛡️ We recommend using a VPN to protect your privacy",
+        modal: "This site reads some network/device info. Do you agree?"
+      }
+    };
 
-    fetch(`https://ipinfo.io/json?token=${token}`)
-      .then(res => res.json())
-      .then(data => {
-        document.getElementById("ip").textContent = "IP 位址：" + data.ip;
-        document.getElementById("location").textContent = `地區：${data.city || ''}, ${data.region || ''}, ${data.country || ''}`;
+    let currentLang = navigator.language.startsWith("zh") ? "zh" : "en";
 
-        // VPN 判斷（ipinfo 回傳的 privacy 物件）
-        if (data.privacy && data.privacy.vpn) {
-          document.getElementById("vpnStatus").innerHTML = '<span class="vpn-yes">✅ 偵測到你正在使用 VPN</span>';
-        } else {
-          document.getElementById("vpnStatus").innerHTML = '<span class="vpn-no">⚠️ 你目前未使用 VPN，資訊可能暴露</span>';
-        }
-      })
-      .catch(() => {
-        document.getElementById("vpnStatus").textContent = "VPN 狀態無法偵測";
-      });
-
-    // 裝置資訊
-    const ua = navigator.userAgent;
-    let deviceType = "未知裝置";
-
-    if (/mobile/i.test(ua)) {
-      deviceType = "手機";
-    } else if (/tablet/i.test(ua)) {
-      deviceType = "平板";
-    } else {
-      deviceType = "電腦";
+    function setLang(lang) {
+      currentLang = lang;
+      document.getElementById("title").textContent = LANG[lang].title;
+      document.getElementById("vpn").textContent = LANG[lang].vpn;
+      document.getElementById("modalText").textContent = LANG[lang].modal;
     }
 
-    document.getElementById("device").textContent = "裝置類型：" + deviceType;
+    function acceptPrivacy() {
+      document.getElementById("privacyModal").style.display = "none";
+    }
 
-    // 時區
-    const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
-    document.getElementById("timezone").textContent = "時區：" + timezone;
+    async function getVisitorInfo() {
+      try {
+        const res = await fetch("https://ipapi.co/json/");
+        const data = await res.json();
+        document.getElementById("ip").textContent = `IP 位址：${data.ip}`;
+        document.getElementById("location").textContent = `位置：${data.city}, ${data.country_name}`;
+        document.getElementById("timezone").textContent = `時區：${data.timezone}`;
+      } catch (e) {
+        document.getElementById("ip").textContent = "IP 無法取得";
+      }
+
+      const ua = navigator.userAgent;
+      let device = "未知裝置";
+      if (/iPhone|iPad|iPod/.test(ua)) device = "iOS 裝置";
+      else if (/Android/.test(ua)) device = "Android 裝置";
+      else if (/Windows/.test(ua)) device = "Windows 電腦";
+      else if (/Mac/.test(ua)) device = "Mac 裝置";
+      document.getElementById("device").textContent = `裝置：${device}`;
+    }
+
+    setLang(currentLang);
+    getVisitorInfo();
   </script>
 </body>
 </html>

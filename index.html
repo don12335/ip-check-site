@@ -45,6 +45,17 @@
       border-radius: 10px;
       margin-top: 20px;
       font-size: 0.95rem;
+      text-align: center;
+    }
+
+    .vpn-yes {
+      color: #22c55e;
+      font-weight: bold;
+    }
+
+    .vpn-no {
+      color: #f97316;
+      font-weight: bold;
     }
 
     .vpn-link {
@@ -69,22 +80,31 @@
     <div class="info" id="device">裝置類型：讀取中...</div>
     <div class="info" id="timezone">時區：讀取中...</div>
 
-    <div class="vpn-note">
-      你正在暴露真實 IP 和設備資訊，為了安全建議使用 VPN。
-      <a class="vpn-link" href="https://surfshark.club/friend/y574AMmc" target="_blank">點我前往 Surfshark VPN</a>
+    <div class="vpn-note" id="vpnStatus">
+      偵測 VPN 狀態中...
     </div>
+
+    <a class="vpn-link" href="https://surfshark.club/friend/y574AMmc" target="_blank">點我前往 Surfshark VPN</a>
   </div>
 
   <script>
-    // 設定 API Token
     const token = "ef1cbe346c7c0f";
 
-    // 使用 ipinfo 查詢 IP 和地區
     fetch(`https://ipinfo.io/json?token=${token}`)
       .then(res => res.json())
       .then(data => {
         document.getElementById("ip").textContent = "IP 位址：" + data.ip;
         document.getElementById("location").textContent = `地區：${data.city || ''}, ${data.region || ''}, ${data.country || ''}`;
+
+        // VPN 判斷（ipinfo 回傳的 privacy 物件）
+        if (data.privacy && data.privacy.vpn) {
+          document.getElementById("vpnStatus").innerHTML = '<span class="vpn-yes">✅ 偵測到你正在使用 VPN</span>';
+        } else {
+          document.getElementById("vpnStatus").innerHTML = '<span class="vpn-no">⚠️ 你目前未使用 VPN，資訊可能暴露</span>';
+        }
+      })
+      .catch(() => {
+        document.getElementById("vpnStatus").textContent = "VPN 狀態無法偵測";
       });
 
     // 裝置資訊
@@ -106,6 +126,4 @@
     document.getElementById("timezone").textContent = "時區：" + timezone;
   </script>
 </body>
-</html>
-
 </html>
